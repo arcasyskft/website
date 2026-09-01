@@ -44,7 +44,7 @@ export function SiteHeader() {
               return (
                 <div
                   key={item.href}
-                  className="relative"
+                  className="relative inline-flex shrink-0"
                   onMouseEnter={() => setActiveMenu(item.label)}
                   onMouseLeave={() => setActiveMenu(null)}
                 >
@@ -64,18 +64,18 @@ export function SiteHeader() {
                   </Link>
 
                   <div
-                    className={`absolute left-0 top-full z-50 min-w-[14rem] pt-3 transition duration-200 ${
+                    className={`absolute left-1/2 top-full z-50 w-max min-w-full -translate-x-1/2 pt-2 transition duration-200 ${
                       isOpen
                         ? "pointer-events-auto translate-y-0 opacity-100"
                         : "pointer-events-none -translate-y-1 opacity-0"
                     }`}
                   >
-                    <ul className="overflow-hidden rounded-soft border border-white/10 bg-accent-deep py-1.5 shadow-lift">
+                    <ul className="overflow-hidden rounded-xl border border-white/10 bg-accent-deep py-1 shadow-lift">
                       {menu.map((option) => (
                         <li key={option.label}>
                           <Link
                             href={option.href}
-                            className="block whitespace-nowrap px-4 py-2.5 text-sm font-semibold text-white/90 transition hover:bg-white/10 hover:text-white"
+                            className="block whitespace-nowrap px-3.5 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 hover:text-white"
                             onClick={() => setActiveMenu(null)}
                           >
                             {option.label}
