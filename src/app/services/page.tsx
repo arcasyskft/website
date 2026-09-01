@@ -5,11 +5,9 @@ import { Reveal } from "@/components/Reveal";
 import { ScopeLens } from "@/components/ScopeLens";
 import { Section } from "@/components/Section";
 import { deliveryFlow, servicesPage } from "@/content/services";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: servicesPage.title,
-  description: servicesPage.support,
-};
+export const metadata: Metadata = routeMeta("/services", servicesPage.title, servicesPage.support);
 
 export default function ServicesPage() {
   return (

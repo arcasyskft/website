@@ -6,11 +6,9 @@ import { Reveal } from "@/components/Reveal";
 import { Section } from "@/components/Section";
 import { referenceArchitectures, softwareStackNote } from "@/content/catalog";
 import { computePage } from "@/content/site";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: computePage.title,
-  description: computePage.support,
-};
+export const metadata: Metadata = routeMeta("/compute", computePage.title, computePage.support);
 
 export default function ComputePage() {
   return (

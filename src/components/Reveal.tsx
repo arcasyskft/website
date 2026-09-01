@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
 type RevealProps = {
   children: ReactNode;
@@ -13,7 +13,8 @@ export function Reveal({ children, className = "", as = "div", id }: RevealProps
   const ref = useRef<HTMLElement | null>(null);
   const Tag = as;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("js-enhanced");
     const node = ref.current;
     if (!node) return;
 

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { LegalDocument } from "@/components/LegalDocument";
 import { legalMeta, privacyPolicy } from "@/content/legal";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: privacyPolicy.title,
-  description: "Privacy policy for ArcaSys Kft. inquiry and website data processing.",
-};
+export const metadata: Metadata = routeMeta(
+  "/legal/privacy",
+  privacyPolicy.title,
+  "Privacy policy for ArcaSys Kft. inquiry and website data processing.",
+);
 
 export default function PrivacyPage() {
   return (

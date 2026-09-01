@@ -3,11 +3,9 @@ import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { Section } from "@/components/Section";
 import { endpointsPage } from "@/content/site";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: endpointsPage.title,
-  description: endpointsPage.support,
-};
+export const metadata: Metadata = routeMeta("/endpoints", endpointsPage.title, endpointsPage.support);
 
 export default function EndpointsPage() {
   return (

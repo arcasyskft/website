@@ -5,64 +5,12 @@ import { ButtonLink } from "@/components/ButtonLink";
 import { BRIEF_STORAGE_KEY } from "@/content/brief";
 import { contactPage, site } from "@/content/site";
 
-type InquiryPayload = {
-  name: string;
-  email: string;
-  company: string;
-  workload: string;
-};
-
-async function sendFromBrowser(to: string, inquiry: InquiryPayload) {
-  const subject = `ArcaSys inquiry — ${inquiry.company || inquiry.name}`;
-  const message = [
-    "New inquiry from the ArcaSys website.",
-    `Source: ${site.url}/contact`,
-    "",
-    `Name: ${inquiry.name}`,
-    `Email: ${inquiry.email}`,
-    `Company: ${inquiry.company || "—"}`,
-    "",
-    "Requirements:",
-    inquiry.workload,
-  ].join("\n");
-
-  const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      name: inquiry.name,
-      email: inquiry.email,
-      company: inquiry.company,
-      message,
-      _subject: subject,
-      _template: "table",
-      _captcha: "false",
-      _replyto: inquiry.email,
-    }),
-  });
-
-  const payload = (await response.json().catch(() => ({}))) as {
-    success?: boolean | string;
-    message?: string;
-  };
-
-  const success = payload.success === true || payload.success === "true";
-  if (!response.ok || !success) {
-    const raw = payload.message || "Could not deliver the inquiry.";
-    if (/activat/i.test(raw)) {
-      throw new Error(`Check ${to} for a one-time activation link, then submit again.`);
-    }
-    throw new Error(raw);
-  }
-}
-
 export function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [requestId, setRequestId] = useState("");
+  const [showMailto, setShowMailto] = useState(false);
   const [workload, setWorkload] = useState("");
   const [briefLoaded, setBriefLoaded] = useState(false);
 
@@ -84,6 +32,8 @@ export function ContactForm() {
     event.preventDefault();
     setError("");
     setSubmitted(false);
+    setShowMailto(false);
+    setRequestId("");
     setSubmitting(true);
 
     const form = event.currentTarget;
@@ -108,16 +58,15 @@ export function ContactForm() {
       const payload = (await response.json().catch(() => ({}))) as {
         ok?: boolean;
         error?: string;
-        deliver?: "browser";
-        to?: string;
+        requestId?: string;
+        mailto?: boolean;
       };
 
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Could not send the inquiry.");
-      }
+      if (payload.requestId) setRequestId(payload.requestId);
 
-      if (payload.deliver === "browser") {
-        await sendFromBrowser(payload.to || site.email, inquiry);
+      if (!response.ok || !payload.ok) {
+        setShowMailto(payload.mailto === true || response.status >= 500);
+        throw new Error(payload.error || "Could not send the inquiry.");
       }
 
       setSubmitted(true);
@@ -136,6 +85,8 @@ export function ContactForm() {
     }
   }
 
+  const mailtoHref = `mailto:${site.email}?subject=${encodeURIComponent("ArcaSys inquiry")}&body=${encodeURIComponent(workload ? `Requirements:\n${workload}` : "")}`;
+
   const fieldClass =
     "mt-2 w-full rounded-soft border border-steel-mid bg-ink-soft/60 px-3 py-3 text-cloud outline-none transition focus:border-accent focus:bg-white disabled:opacity-70";
 
@@ -144,6 +95,7 @@ export function ContactForm() {
       <form
         onSubmit={handleSubmit}
         className="space-y-5 rounded-panel border border-steel bg-white p-6 shadow-panel md:p-8"
+        noValidate={false}
       >
         {briefLoaded ? (
           <p className="rounded-soft border border-steel bg-ink-soft/80 px-3 py-2 text-xs text-mist">
@@ -201,8 +153,12 @@ export function ContactForm() {
             disabled={submitting}
             onChange={(event) => setWorkload(event.target.value)}
             className={`${fieldClass} resize-y`}
+            aria-describedby="workload-hint"
           />
         </label>
+        <p id="workload-hint" className="text-xs text-mist">
+          Do not submit secrets, credentials, customer datasets, or personal data of third parties.
+        </p>
         <button
           type="submit"
           disabled={submitting}
@@ -230,10 +186,21 @@ export function ContactForm() {
             .
           </span>
         </label>
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-sm text-red-700">
+            {error}
+            {requestId ? ` Reference: ${requestId}.` : ""}{" "}
+            {showMailto ? (
+              <a href={mailtoHref} className="font-semibold underline-offset-2 hover:underline">
+                Email {site.email}
+              </a>
+            ) : null}
+          </p>
+        ) : null}
         {submitted ? (
-          <p className="text-sm text-accent">
-            Inquiry sent to {site.email}. We will reply to the work email you provided.
+          <p role="status" aria-live="polite" className="text-sm text-accent">
+            Inquiry delivered to {site.email}. We will reply to the work email you provided.
+            {requestId ? ` Reference: ${requestId}.` : ""}
           </p>
         ) : contactPage.note ? (
           <p className="text-xs text-mist">{contactPage.note}</p>

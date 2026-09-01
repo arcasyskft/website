@@ -3,11 +3,9 @@ import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { Section } from "@/components/Section";
 import { faqItems, resourcePlaceholders, resourcesPage } from "@/content/resources";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: resourcesPage.title,
-  description: resourcesPage.support,
-};
+export const metadata: Metadata = routeMeta("/resources", resourcesPage.title, resourcesPage.support);
 
 export default function ResourcesPage() {
   return (

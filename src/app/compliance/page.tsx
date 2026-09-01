@@ -12,11 +12,13 @@ import {
   policyLinks,
   securityControls,
 } from "@/content/compliance";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: compliancePage.title,
-  description: compliancePage.support,
-};
+export const metadata: Metadata = routeMeta(
+  "/compliance",
+  compliancePage.title,
+  compliancePage.support,
+);
 
 export default function CompliancePage() {
   return (

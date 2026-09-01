@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { contactPage } from "@/content/site";
+import { routeMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: contactPage.title,
-  description: contactPage.support,
-};
+export const metadata: Metadata = routeMeta("/contact", contactPage.title, contactPage.support);
 
 export default function ContactPage() {
   return (

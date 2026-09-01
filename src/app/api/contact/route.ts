@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_WINDOW = 8;
+const MAX_BODY_BYTES = 16_384;
 const buckets = new Map<string, { count: number; resetAt: number }>();
 
 type Inquiry = {
@@ -14,6 +15,10 @@ type Inquiry = {
   company: string;
   workload: string;
 };
+
+function requestId() {
+  return crypto.randomUUID();
+}
 
 function rateLimit(ip: string) {
   const now = Date.now();
@@ -40,11 +45,12 @@ function readString(value: unknown, max: number) {
     .slice(0, max);
 }
 
-function buildMessage(inquiry: Inquiry) {
+function buildMessage(inquiry: Inquiry, id: string) {
   const subject = `ArcaSys inquiry — ${inquiry.company || inquiry.name}`;
   const text = [
     "New inquiry from the ArcaSys website.",
     `Source: ${site.url}/contact`,
+    `Request ID: ${id}`,
     "",
     `Name: ${inquiry.name}`,
     `Email: ${inquiry.email}`,
@@ -57,13 +63,15 @@ function buildMessage(inquiry: Inquiry) {
   return { subject, text };
 }
 
-async function sendWithResend(to: string, inquiry: Inquiry) {
+async function sendWithResend(to: string, inquiry: Inquiry, id: string) {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
+  const from = process.env.CONTACT_FROM;
 
-  const { subject, text } = buildMessage(inquiry);
-  const from =
-    process.env.CONTACT_FROM || "ArcaSys Website <beth.t@example.com>";
+  if (!apiKey || !from) {
+    throw new Error("INQUIRY_NOT_CONFIGURED");
+  }
+
+  const { subject, text } = buildMessage(inquiry, id);
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -89,13 +97,22 @@ async function sendWithResend(to: string, inquiry: Inquiry) {
     throw new Error(payload.message || "Email provider rejected the inquiry.");
   }
 
-  return payload;
+  return payload.id ?? id;
 }
 
 export async function POST(request: Request) {
+  const id = requestId();
+  const length = Number(request.headers.get("content-length") ?? "0");
+  if (length > MAX_BODY_BYTES) {
+    return NextResponse.json(
+      { ok: false, error: "Inquiry is too large.", requestId: id },
+      { status: 413 },
+    );
+  }
+
   if (!rateLimit(clientIp(request))) {
     return NextResponse.json(
-      { ok: false, error: "Too many inquiries. Please try again later." },
+      { ok: false, error: "Too many inquiries. Please try again later.", requestId: id },
       { status: 429 },
     );
   }
@@ -105,13 +122,13 @@ export async function POST(request: Request) {
     body = (await request.json()) as Record<string, unknown>;
   } catch {
     return NextResponse.json(
-      { ok: false, error: "Invalid request." },
+      { ok: false, error: "Invalid request.", requestId: id },
       { status: 400 },
     );
   }
 
   if (readString(body.website, 200)) {
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, requestId: id });
   }
 
   const inquiry: Inquiry = {
@@ -123,14 +140,14 @@ export async function POST(request: Request) {
 
   if (inquiry.name.length < 2 || !EMAIL_RE.test(inquiry.email) || inquiry.workload.length < 8) {
     return NextResponse.json(
-      { ok: false, error: "Please complete name, work email, and requirements." },
+      { ok: false, error: "Please complete name, work email, and requirements.", requestId: id },
       { status: 400 },
     );
   }
 
   if (body.privacy !== true) {
     return NextResponse.json(
-      { ok: false, error: "Please accept the privacy notice to send an inquiry." },
+      { ok: false, error: "Please accept the privacy notice to send an inquiry.", requestId: id },
       { status: 400 },
     );
   }
@@ -138,22 +155,28 @@ export async function POST(request: Request) {
   const to = process.env.CONTACT_TO || site.email;
   if (!to) {
     return NextResponse.json(
-      { ok: false, error: "Contact inbox is not configured." },
+      { ok: false, error: "Contact inbox is not configured.", requestId: id },
       { status: 500 },
     );
   }
 
   try {
-    const viaResend = await sendWithResend(to, inquiry);
-    if (viaResend) {
-      return NextResponse.json({ ok: true });
-    }
-
-    // FormSubmit only accepts browser requests, not this API route.
-    return NextResponse.json({ ok: true, deliver: "browser", to });
+    const providerId = await sendWithResend(to, inquiry, id);
+    return NextResponse.json({ ok: true, requestId: providerId });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not send the inquiry.";
-    return NextResponse.json({ ok: false, error: message }, { status: 502 });
+    const raw = error instanceof Error ? error.message : "Could not send the inquiry.";
+    const configured = raw !== "INQUIRY_NOT_CONFIGURED";
+    console.error("contact_inquiry_failed", { requestId: id, error: raw });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: configured
+          ? "The inquiry could not be delivered. Email us directly or try again."
+          : "Inquiry email is not configured on the server yet. Use the direct email link.",
+        requestId: id,
+        mailto: true,
+      },
+      { status: configured ? 502 : 503 },
+    );
   }
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ButtonLink";
 import { ConstraintBrief } from "@/components/ConstraintBrief";
 import { HeroVisual } from "@/components/HeroVisual";
@@ -11,9 +12,13 @@ import {
   homeSections,
   pillars,
   processSteps,
+  site,
   trust,
   workloads,
 } from "@/content/site";
+import { routeMeta } from "@/lib/seo";
+
+export const metadata: Metadata = routeMeta("/", `${site.name} — ${site.tagline}`, site.description);
 
 export default function HomePage() {
   return (

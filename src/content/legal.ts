@@ -1,6 +1,6 @@
 import { site } from "./site";
 
-const lastUpdated = "2026-08-20";
+const lastUpdated = "2026-09-01";
 
 export const legalMeta = {
   lastUpdated,
@@ -31,11 +31,11 @@ export const privacyPolicy = {
     },
     {
       heading: "5. Recipients",
-      body: `Inquiry submissions are delivered by email to ${site.email}. Data may also be processed by email or collaboration tools used by ArcaSys. We do not sell personal data. If a supplier must receive contact details to fulfill a request, we will do so only as needed for that purpose.`,
+      body: `Inquiry submissions are delivered by email to ${site.email} using Resend as the sending processor. Resend may process message content on servers outside the EU/EEA; where required we rely on Standard Contractual Clauses. We do not sell personal data. If a supplier must receive contact details to fulfill a request, we will do so only as needed for that purpose.`,
     },
     {
       heading: "6. International transfers",
-      body: "If a tool processes data outside the EU/EEA, we will rely on an appropriate transfer mechanism where required. Details will be updated here when tooling is finalized.",
+      body: "If inquiry email is processed outside the EU/EEA by Resend, we rely on an appropriate transfer mechanism (Standard Contractual Clauses) where required.",
     },
     {
       heading: "7. Your rights",
