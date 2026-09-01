@@ -61,10 +61,8 @@ export function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-5 md:pt-4">
       <div className="mx-auto w-full max-w-6xl overflow-visible rounded-bar border border-white/10 bg-accent shadow-bar backdrop-blur-md">
         <div className="relative flex h-[3.9rem] items-center justify-between gap-6 overflow-visible px-5 md:px-7">
-          <div className="relative z-20 h-10 w-[6.75rem] shrink-0">
-            <div className="absolute left-0 top-1/2 -translate-y-[calc(50%-4px)]">
-              <BrandLogo height={80} priority />
-            </div>
+          <div className="relative z-20 shrink-0">
+            <BrandLogo height={40} priority />
           </div>
 
           <nav

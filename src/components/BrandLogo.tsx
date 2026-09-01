@@ -17,11 +17,11 @@ export function BrandLogo({
   linked = true,
   priority = false,
 }: BrandLogoProps) {
-  const width = Math.round(height * 1.35);
+  const width = Math.round(height * 4);
 
   const image = (
     <Image
-      src="/brand/arcasys-logo.png"
+      src="/brand/arcasys-logo-horizontal.png"
       alt={site.name}
       width={width}
       height={height}

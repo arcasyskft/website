@@ -11,7 +11,7 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-6xl overflow-hidden rounded-bar border border-white/10 bg-accent text-white shadow-bar">
         <div className="relative mx-auto grid gap-10 px-5 py-14 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:px-8 md:py-16">
           <div>
-            <BrandLogo height={112} />
+            <BrandLogo height={64} />
             <p className="mt-3 text-sm font-medium text-white/80">{site.legalName}</p>
             <p className="mt-1 text-sm font-medium text-white/80">
               {[site.location, site.region].filter(Boolean).join(" · ")}
