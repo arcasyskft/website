@@ -158,21 +158,20 @@ export default function HomePage() {
           description={homeSections.workloads.description}
           tone="dark"
         >
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid max-w-2xl gap-10">
             {workloads.map((item, i) => (
               <Reveal
                 key={item.id}
-                className="scroll-mt-28 border-l-4 border-white/80 pl-5"
+                id={item.id}
+                className="scroll-mt-32 border-l-4 border-white/80 pl-5"
               >
-                <div id={item.id}>
-                  <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-white/45">
-                    WL · {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="font-display text-lg font-semibold text-white">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/60 md:text-base">
-                    {item.description}
-                  </p>
-                </div>
+                <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.16em] text-white/45">
+                  WL · {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 className="font-display text-lg font-semibold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/60 md:text-base">
+                  {item.description}
+                </p>
               </Reveal>
             ))}
           </div>
