@@ -6,9 +6,10 @@ type RevealProps = {
   children: ReactNode;
   className?: string;
   as?: "div" | "section" | "article" | "li";
+  id?: string;
 };
 
-export function Reveal({ children, className = "", as = "div" }: RevealProps) {
+export function Reveal({ children, className = "", as = "div", id }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const Tag = as;
 
@@ -36,7 +37,7 @@ export function Reveal({ children, className = "", as = "div" }: RevealProps) {
   }, []);
 
   return (
-    <Tag ref={ref as never} className={`reveal ${className}`.trim()}>
+    <Tag id={id} ref={ref as never} className={`reveal ${className}`.trim()}>
       {children}
     </Tag>
   );
