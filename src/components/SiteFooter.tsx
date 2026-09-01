@@ -7,7 +7,7 @@ export function SiteFooter() {
   const contactBits = [site.email, site.phone, site.address].filter(Boolean);
 
   return (
-    <footer className="px-3 pb-3 md:px-5 md:pb-5">
+    <footer className="px-3 pb-3 pt-8 md:px-5 md:pb-5 md:pt-10">
       <div className="relative mx-auto max-w-6xl overflow-hidden rounded-bar border border-white/10 bg-accent text-white shadow-bar">
         <div className="relative mx-auto grid gap-10 px-5 py-14 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:px-8 md:py-16">
           <div>
